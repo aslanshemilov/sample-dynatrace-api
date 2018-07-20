@@ -1,0 +1,24 @@
+extends layout
+
+block content
+  h1= title
+  
+  
+  table.table.table-striped
+    thead
+      tr  
+        th Entity Id
+        th Display Name
+        th OS
+        th Cores
+        th CPU User
+
+      tbody
+        each host in hosts
+          tr
+            td=host.entityId
+            td=host.displayName
+            td=host.osType
+            td=host.cpuCores
+            td
+              span.badge(class="#{host.badge}")=host.cpu
