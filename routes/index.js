@@ -15,32 +15,45 @@ router.get('/', async (req, res, next) => {
   });
 
   const hostCPU = await Promise.all(promises);
-  
-  const cpuValues = hostCPU.map((elm) => {
-    const k = Object.entries(elm)[0][0];
-    const v = Object.entries(elm)[0][1][0][1];
-    const r = {
-      entityId: k,
-      cpu: v,
-    };
-    return r;
-  });
 
+  let cpuValues = [];
+  if (hostCPU && hostCPU.length) {
+    cpuValues = hostCPU.map((elm) => {
+      if (Object.entries(elm) && Object.entries(elm)[0] && Object.entries(elm)[0][0]) {
+        const k = Object.entries(elm)[0][0];
+        const v = Object.entries(elm)[0][1][0][1];
+        const r = {
+          entityId: k,
+          cpu: v,
+        };
+        return r;
+      } else {
+        return {};
+      }
+    });
+  }
 
   hosts = hosts.map((host) => {
     const match = cpuValues.find((elm) => {
       return elm.entityId === host.entityId;
     });
-    host.cpu = (Math.round(match.cpu * 100) / 100).toFixed(2);
+    if(match) {
+      host.cpu = (Math.round(match.cpu * 100) / 100).toFixed(2);
+    } else {
+      host.cpu = 'N/A';
+    }
+    
 
     host.badge = 'badge-dark';
-    if(host.cpu < 1) {
+    if (host.cpu === 'N/A') {
+      host.badge = '';
+    } else if (host.cpu < 1) {
       host.badge = 'badge-danger';
-    } else if(host.cpu < 5) {
+    } else if (host.cpu < 5) {
       host.badge = 'badge-success';
-    } else if(host.cpu > 50 && host.cpu < 80) {
+    } else if (host.cpu > 50 && host.cpu < 80) {
       host.badge = 'badge-warning';
-    } else if(host.cpu > 80) {
+    } else if (host.cpu > 80) {
       host.badge = 'badge-danger';
     }
 

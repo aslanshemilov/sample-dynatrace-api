@@ -5,26 +5,33 @@ class DynatraceService {
   constructor(environment, cluster, token) {
     this.environment = environment;
     this.cluster = cluster;
-    this.token  = token;
+    this.token = token;
   }
 
   async getHosts() {
-    const url = `${this.baseUrl}/entity/infrastructure/hosts`;
-    const result = await axios.get(url, this.axiosConfig);
-    if(result.data) return result.data;
-    return [];
+    try {
+      const url = `${this.baseUrl}/entity/infrastructure/hosts`;
+      console.log(url);
+
+      const result = await axios.get(url, this.axiosConfig);
+      if (result.data) return result.data;
+      return [];
+    } catch (err) {
+      console.error(err.response.data);
+      return [];
+    }
   }
 
   async getHostCPU(entityId) {
     try {
       const url = `${this.baseUrl}/timeseries/com.dynatrace.builtin:host.cpu.user?aggregationType=AVG&relativeTime=day&queryMode=total&entity=${entityId}&includeData=true`;
       const result = await axios.get(url, this.axiosConfig)
-      if(result.data && result.data.dataResult.dataPoints && result.data.dataResult.dataPoints[entityId]) {
+      if (result.data && result.data.dataResult.dataPoints && result.data.dataResult.dataPoints[entityId]) {
         return result.data.dataResult.dataPoints;
       }
       return -1;
     } catch (err) {
-      console.log(err);
+      console.error(err.response.data);
       return [];
     }
   }
